@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import axios from 'axios';
 
 // export entry application component
 export class App extends React.Component {
 
     email = '';
+    processing = false;
 
     constructor() {
         console.log( 'App.constructor()' );
@@ -34,19 +35,23 @@ export class App extends React.Component {
     }
 
     handleClick(event) {
+        event.preventDefault();
+        if (this.processing) return;
         Array.from(document.querySelectorAll("input")).forEach(
             input => (input.value = "")
         );
         this.setState({ email: '通信中' });
-        event.preventDefault();
         const inputEmail = this.email;
         const axiosPost = axios.post('http://localhost:9000/api', {email: inputEmail});
+        this.processing = !this.processing;
         axiosPost.then( res => {
             console.log(res.status);
             this.setState({ email: inputEmail });
         } ).catch( error => {
             this.setState({ email: '失敗' });
             console.log(error);
+        }).then( res => {
+            this.processing = !this.processing;
         });
     }
 
